@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Chat</title>
+    <style type="text/css">
+        .style1 {
+            margin: 25px;
+            padding: 20px;
+            background-color: lightgray;
+            border: thick solid #808080;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="style1">
+        <input type="text" id="message" />
+        <input type="button" id="sendmessage" value="Send" />
+        <input type="hidden" id="displayname">
+        <ul id="discussion"></ul>
+    </div>
+
+    <script src="Scripts/jquery-1.6.4.js"></script>
+
+    <script src="Scripts/jquery.signalR-2.2.2.js"></script>
+   
+    
+  
+    <script type="text/javascript">
+        $(function () {
+            var chat = $.connection.createHubProxy('ChatHub');
+            
+            chat.on('broadcastMessage', function (name, message)) {
+                
+                var encodedName = $('<div />').text(name).html();
+                var encodedMsg = $('<div />').text(message).html();
+               
+                $('#discussion').append('<li><strong>' + encodedName
+                    + '</strong>' + encodedMsg + '</li>');
+            }
+           
+            $('#displayname').val(prompt('Enter your name:', ''));
+            
+            
+            $('#message').focus();
+        
+            $.connection.hub.start().done(function () {
+                $('#sendmessage').click(function () {
+                   
+                    chat.invoke('Send', $('#diplayname').val(), $('message').val());
+                    
+                    $('#message').val('').focus();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
